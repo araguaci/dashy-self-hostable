@@ -34,6 +34,10 @@ Dashy has support for displaying dynamic content in the form of widgets. There a
   - [NASA APOD](#astronomy-picture-of-the-day)
   - [GitHub Trending](#github-trending)
   - [GitHub Profile Stats](#github-profile-stats)
+  - [Healthchecks Status](#healthchecks-status)
+  - [Mvg Departure](#mvg-departure)
+  - [Mvg Connection](#mvg-connection)
+  - [Custom search](#custom-search)
 - **[Self-Hosted Services Widgets](#self-hosted-services-widgets)**
   - [System Info](#system-info)
   - [Cron Monitoring](#cron-monitoring-health-checks)
@@ -42,7 +46,7 @@ Dashy has support for displaying dynamic content in the form of widgets. There a
   - [System Load History](#load-history-netdata)
   - [Pi Hole Stats](#pi-hole-stats)
   - [Pi Hole Queries](#pi-hole-queries)
-  - [Recent Traffic](#recent-traffic)
+  - [Pi Hole Recent Traffic](#pi-hole-recent-traffic)
   - [Stat Ping Statuses](#stat-ping-statuses)
   - [Synology Download Station](#synology-download-station)
   - [AdGuard Home Block Stats](#adguard-home-block-stats)
@@ -55,8 +59,11 @@ Dashy has support for displaying dynamic content in the form of widgets. There a
   - [Nextcloud System](#nextcloud-system)
   - [Nextcloud Stats](#nextcloud-stats)
   - [Nextcloud PHP OPcache](#nextcloud-php-opcache-stats)
+  - [Proxmox lists](#proxmox-lists)
   - [Sabnzbd](#sabnzbd)
   - [Gluetun VPN Info](#gluetun-vpn-info)
+  - [Drone CI Build](#drone-ci-builds)
+  - [Linkding](#linkding)
 - **[System Resource Monitoring](#system-resource-monitoring)**
   - [CPU Usage Current](#current-cpu-usage)
   - [CPU Usage Per Core](#cpu-usage-per-core)
@@ -110,6 +117,7 @@ A simple, live-updating time and date widget with time-zone support. All fields 
 **`customCityName`** | `string` |  _Optional_ | By default the city from the time-zone is shown, but setting this value will override that text
 **`hideDate`** | `boolean` |  _Optional_ | If set to `true`, the date and city will not be shown. Defaults to `false`
 **`hideSeconds`** | `boolean` |  _Optional_ | If set to `true`, seconds will not be shown. Defaults to `false`
+**`use12Hour`** | `boolean` |  _Optional_ | If set to `true`, 12 hour time will be displayed. Defaults to the settings suggested by the current `format` and `timeZone`
 
 #### Example
 
@@ -213,6 +221,7 @@ Display news and updates from any RSS-enabled service.
 **`limit`** | `number` |  _Optional_ | The number of posts to return. If you haven't specified an API key, this will be limited to 10
 **`orderBy`** | `string` |  _Optional_ | How results should be sorted. Can be either `pubDate`, `author` or `title`. Defaults to `pubDate`
 **`orderDirection`** | `string` |  _Optional_ | Order direction of feed items to return. Can be either `asc` or `desc`. Defaults to `desc`
+**`parseLocally`** | `boolean`     |  _Optional_ | If true parse the rss feed locally instead of using the rss2json API.
 
 #### Example
 
@@ -253,6 +262,8 @@ Or what about showing a photo of the day? Try `https://source.unsplash.com/rando
 **Field** | **Type** | **Required** | **Description**
 --- | --- | --- | ---
 **`imagePath`** | `string` |  Required | The path (local or remote) of the image to display
+**`imageWidth`** | `string` |  _Optional_ | Specify a fixed width for rendered image. Accepts either integer value in `px`, or any string value with units (e.g. `420`, `100px`, `6.9rem`) (defaults to `auto`)
+**`imageHeight`** | `string` |  _Optional_ | Specify a fixed height for rendered image. Accepts either integer value in `px`, or any string value with units (e.g. `420`, `100px`, `6.9rem`) (defaults to `auto`)
 
 #### Example
 
@@ -616,7 +627,7 @@ Keep track of recent security advisories and vulnerabilities, with optional filt
 **`minScore`** | `number` |  _Optional_ | If set, will only display results with a CVE score higher than the number specified. Can be a number between `0` and `9.9`. By default, vulnerabilities of all CVE scores are shown
 **`hasExploit`** | `boolean` |  _Optional_ | If set to `true`, will only show results with active exploits. Defaults to `false`
 **`vendorId`** | `number` |  _Optional_ | Only show results from a specific vendor, specified by ID. See [Vendor Search](https://www.cvedetails.com/vendor-search.php) for list of vendors. E.g. `23` (Debian), `26` (Microsoft), `23682` (CloudFlare)
-**`productId`** | `number` |  _Optional_ | Only show results from a specific app or product, specified by ID. See [Product Search](https://www.cvedetails.com/product-search.php) for list of products. E.g. `13534` (Docker), `15913` (NextCloud), `19294` (Portainer), `17908` (ProtonMail)
+**`productId`** | `number` |  _Optional_ | Only show results from a specific app or product, specified by ID. See [Product Search](https://www.cvedetails.com/product-search.php) for list of products. E.g. `28125` (Docker), `34622` (NextCloud), `50211` (Portainer), `95391` (ProtonMail)
 
 #### Example
 
@@ -631,7 +642,7 @@ or
   options:
     sortBy: publish-date
     productId: 28125
-    hasExploit: true
+    hasExploit: false
     minScore: 5
     limit: 30
 ```
@@ -1137,10 +1148,178 @@ Display stats from your GitHub profile, using embedded cards from [anuraghazra/g
 
 ---
 
+### HealthChecks Status
+
+Display status of one or more HealthChecks project(s). Works with healthcheck.io and your selfhosted instance.
+
+<p align="center"><img width="380" src="https://i.ibb.co/W5dP6VN/Bildschirm-foto-2023-01-07-um-11-07-11.png" /></p>
+
+#### Options
+
+**Field** | **Type** | **Required** | **Description**
+--- | --- | --- | ---
+**`host`** | `string` |  Optional | The base url of your instance, default is `https://healthchecks.io`
+**`apiKey`** | `string` or `array` |  Required | One or more API keys for your healthcheck projects. (Read-only works fine)
+
+```yaml
+- type: HealthChecks
+  options:
+    host: https://healthcheck.your-domain.de
+    apiKey: 
+      - abcdefg...
+      - zxywvu...
+```
+
+#### Info
+
+- **CORS**: 🟢 Enabled
+- **Auth**: 🟢 Required
+- **Price**: 🟢 Free / Paid / Self-hosted 
+- **Host**: Managed Instance or Self-Hosted (see [healthchecks/healthchecks](https://github.com/healthchecks/healthchecks))
+- **Privacy**: _See [Healthchecks.io Privacy Policy](https://healthchecks.io/privacy/)_
+
+---
+
+### MVG Departure
+
+Display departure time of a MVG (Münchner Verkehrs Gesellschaft) station.
+
+From https://www.mvg.de/impressum.html:
+
+> [...] Die Verarbeitung unserer Inhalte oder Daten durch Dritte erfordert unsere ausdrückliche Zustimmung. Für private, nicht-kommerzielle Zwecke, wird eine gemäßigte Nutzung ohne unsere ausdrückliche Zustimmung geduldet. Jegliche Form von Data-Mining stellt keine gemäßigte Nutzung dar.[...]
+
+In other words: Private, noncomercial, moderate use of the API is tolerated. They don’t consider data mining as moderate use. (This is not a legal advice)
+
+#### Options
+
+**Field** | **Type** | **Required** | **Description**
+--- | --- | --- | ---
+**`location`** | `string` |  Required | The name of the location (exact) or the location id, startin with `de:09162:`
+**`limit`** | `integer` |  _Optional_ | Limit number of entries, defaults to 10.
+**`title`** | `string` |  _Optional_ | A custom title to be displayed.
+**`header`** | `bool` |  _Optional_ | Shall the title be shown?
+**`filters`** | `object` |  _Optional_ | Filter results
+**`filters.line`** | `string/array` |  _Optional_ | Filter results for given line(s).
+**`filters.product`** | `string/array` |  _Optional_ | Filter results for specific product (TRAM, UBAHN, SBAHN, BUS).
+**`filters.destination`** | `string/object` |  _Optional_ | Filter results for specific destination(s)
+
+```yaml
+- type: mvg
+  options:
+    location: Marienplatz
+    limit: 5
+```
+
+#### Info
+
+- **CORS**: 🟢 Enabled
+- **Auth**: 🟢 Not Required
+- **Price**: 🟢 Free / Private use only
+- **Host**: [MVG](https://mvg.de)
+- **Privacy**: _See [MVG Datenschutz](https://www.mvg.de/datenschutz-mvg.html)_
+
+---
+
+### MVG Connection
+
+Display the next connection for two addresses/coordinates, stations or POI within Munich using MVG MVG (Münchner Verkehrs Gesellschaft).
+
+From https://www.mvg.de/impressum.html:
+
+> [...] Die Verarbeitung unserer Inhalte oder Daten durch Dritte erfordert unsere ausdrückliche Zustimmung. Für private, nicht-kommerzielle Zwecke, wird eine gemäßigte Nutzung ohne unsere ausdrückliche Zustimmung geduldet. Jegliche Form von Data-Mining stellt keine gemäßigte Nutzung dar.[...]
+
+In other words: Private, noncomercial, moderate use of the API is tolerated. They don’t consider data mining as moderate use. (This is not a legal advice)
+
+#### Options
+
+**Field** | **Type** | **Required** | **Description**
+--- | --- | --- | ---
+**`origin`** | `string` |  Required | Origin of the connection.
+**`destination`** | `string` |  Required | Destination of the connection.
+**`title`** | `string` |  _Optional_ | A custom title to be displayed.
+**`header`** | `bool` |  _Optional_ | Shall the title be shown?
+**`filters`** | `object` |  _Optional_ | Filter results
+**`filters.line`** | `string/array` |  _Optional_ | Filter results for given line(s).
+**`filters.product`** | `string/array` |  _Optional_ | Filter results for specific product (TRAM, UBAHN, SBAHN, BUS).
+**`filters.destination`** | `string/object` |  _Optional_ | Filter results for specific destination(s)
+
+```yaml
+- type: mvg-connection
+  options:
+    from: Marienplatz
+    from: Dachauer Straße 123
+    header: true
+    filters:
+      product: [UBAHN]
+      line: [U1,U2,U4,U5]
+
+```
+
+#### Info
+
+- **CORS**: 🟢 Enabled
+- **Auth**: 🟢 Not Required
+- **Price**: 🟢 Free / Private use only
+- **Host**: [MVG](https://mvg.de)
+- **Privacy**: _See [MVG Datenschutz](https://www.mvg.de/datenschutz-mvg.html)_
+
+---
+
+### Custom search
+
+Allows web search using multiple user-defined search engines and other websites.
+
+#### Options
+
+**Field** | **Type** | **Required** | **Description**
+--- | --- | --- | ---
+**`engines`** | `array` |  required | An array of search engine objects. Each search engine object should have two required properties: **title** and **url**. See the example below.
+**`placeholder`** | `string` |  optional | Placeholder text in the search box.
+
+#### Notes
+- The first search engine in the engines array will be treated as the default search engine, and used when the user presses `Enter` in the search box.
+- Popup blockers can interfere with opening a new search window.
+
+#### Example
+
+This widget allows searching multiple search engines from dashy.
+```yaml
+  - type: 'custom-search'
+    options:
+      placeholder: Search for something using the buttons below
+      engines:
+      - title: SearXNG
+        url: https://searx.lan/?q=
+      - title: Quant
+        url: https://www.qwant.com/?q=
+      - title: Bing Web
+        url: http://www.bing.com/search?q=
+      - title: Bing Images
+        url: http://www.bing.com/images/search?q=
+      - title: Bing Maps
+        url: http://www.bing.com/maps/search?q=
+      - title: Yandex
+        url: https://www.yandex.com/search/?text=
+      - title: Passmark
+        url: https://www.passmark.com/search/zoomsearch.php?zoom_query=
+      - title: IMDB
+        url: http://www.imdb.com/find?q=
+```
+#### Info
+
+- **CORS**: 🟢 Not needed
+- **Auth**: 🟢 Not Required
+- **Price**: 🟢 Free 
+- **Host**: user defined
+- **Privacy**: depends on the user defined search engines.
+
+---
+
+
 ## Self-Hosted Services Widgets
 
 ### System Info
-
+_See [MVG Datenschutz](https://www.mvg.de/datenschutz-mvg.html)_
 Displays info about the server which Dashy is hosted on. Includes user + host, operating system, uptime and basic memory & load data.
 
 <p align="center"><img width="400" src="https://i.ibb.co/rvDPBDF/system-info.png" /></p>
@@ -1302,6 +1481,7 @@ Displays the number of queries blocked by [Pi-Hole](https://pi-hole.net/).
 --- | --- | --- | ---
 **`hostname`** | `string` |  Required | The URL to your Pi-Hole instance
 **`hideStatus`** / **`hideChart`** / **`hideInfo`** | `boolean` |  _Optional_ | Optionally hide any of the three parts of the widget
+**`apiKey`** | `string` |  Required | Your Pi-Hole web password. It is **NOT** your pi-hole admin interface or server password. It can be found in `/etc/pihole/setupVars.conf`, and is a 64-character located on the line that starts with `WEBPASSWORD`
 
 #### Example
 
@@ -1309,12 +1489,13 @@ Displays the number of queries blocked by [Pi-Hole](https://pi-hole.net/).
 - type: pi-hole-stats
   options:
     hostname: http://192.168.130.1
+    apiKey: xxxxxxxxxxxxxxxxxxxxxxx
 ```
 
 #### Info
 
 - **CORS**: 🟢 Enabled
-- **Auth**: 🟢 Not Required
+- **Auth**: 🔴 Required
 - **Price**: 🟢 Free
 - **Host**: Self-Hosted (see [GitHub - Pi-hole](https://github.com/pi-hole/pi-hole))
 - **Privacy**: _See [Pi-Hole Privacy Guide](https://pi-hole.net/privacy/)_
@@ -1354,7 +1535,7 @@ Shows top queries that were blocked and allowed by [Pi-Hole](https://pi-hole.net
 
 ---
 
-### Recent Traffic
+### Pi Hole Recent Traffic
 
 Shows number of recent traffic, using allowed and blocked queries from [Pi-Hole](https://pi-hole.net/)
 
@@ -1365,6 +1546,7 @@ Shows number of recent traffic, using allowed and blocked queries from [Pi-Hole]
 **Field** | **Type** | **Required** | **Description**
 --- | --- | --- | ---
 **`hostname`** | `string` |  Required | The URL to your Pi-Hole instance
+**`apiKey`** | `string` |  Required | Your Pi-Hole web password. It is **NOT** your pi-hole admin interface or server password. It can be found in `/etc/pihole/setupVars.conf`, and is a 64-character located on the line that starts with `WEBPASSWORD`
 
 #### Example
 
@@ -1372,12 +1554,13 @@ Shows number of recent traffic, using allowed and blocked queries from [Pi-Hole]
 - type: pi-hole-traffic
   options:
     hostname: https://pi-hole.local
+    apiKey: xxxxxxxxxxxxxxxxxxxxxxx
 ```
 
 #### Info
 
 - **CORS**: 🟢 Enabled
-- **Auth**: 🟢 Not Required
+- **Auth**: 🔴 Required
 - **Price**: 🟢 Free
 - **Host**: Self-Hosted (see [GitHub - Pi-hole](https://github.com/pi-hole/pi-hole))
 - **Privacy**: _See [Pi-Hole Privacy Guide](https://pi-hole.net/privacy/)_
@@ -1836,6 +2019,64 @@ Shows statistics about PHP OPcache performance on your Nextcloud server.
 - **Host**: Self-Hosted (see [Nextcloud](https://nextcloud.com))
 - **Privacy**: _See [Nextcloud Privacy Policy](https://nextcloud.com/privacy)_
 
+
+---
+
+### Proxmox lists
+
+Shows lists of nodes, containers, and VMs in a Proxmox virtual environment cluster, with a status indicator.
+
+#### Options
+**Field** | **Type** | **Required** | **Description**
+--- | --- | --- | ---
+**`cluster_url`** | `string` |  Required | The URL of the proxmox cluster server. No trailing `/`. for example: `https://proxmox.lan:8006`
+**`user_name`** | `string` |  Required | A Proxmox API Username, for example `root@pam` or `dashy@pve`.
+**`token_name`** | `string` |  Required | A Proxmox API token name. You can get a token in the API section of the cluster management interface.
+**`token_uuid`** | `string` |  Required | The value of the token entered above. This is normally a UUID. 
+**`node`** | `string` |  optional | A Proxmox node name. If empty or not supplied, a list of nodes will be shown.
+**`node_data`** | `string` |  optional | This is required if a node is selected, Currently this accepts two values, either `lxc` or `qemu` but the widget can be improved to get other types of data from the Proxmox API.
+**`title`** | `string` |  optional | A widget title.
+**`title_as_link`** | `boolean` |  optional | When this is set to anything other than 0 or false, the title will be linked to the value entered in the `cluster_url` option.
+**`footer`** | `string` |  optional | A widget footer.
+**`footer_as_link`** | `boolean` |  optional | When this is set to anything other than 0 or false, the title will be linked to the value entered in the `cluster_url` option.
+**`hide_templates`** | `boolean` |  optional | When this is set to anything other than 0 or false, templates will be filtered out of the result list.
+
+#### Example
+This will show the list of nodes.
+```yaml
+  - type: proxmox-lists
+    useProxy: true 
+    options:
+      cluster_url: https://proxmox.lan:8006
+      user_name: root@pam
+      token_name: dashy
+      token_uuid: bfb152df-abcd-abcd-abcd-ccb95a472d01
+```
+This will show the list of VMs, with a title and a linked fotter, hiding VM templates.
+```yaml
+  - type: proxmox-lists
+    useProxy: true 
+    options:
+      cluster_url: https://proxmox.lan:8006
+      user_name: root@pam
+      token_name: dashy
+      token_uuid: bfb152df-abcd-abcd-abcd-ccb95a472d01
+      node: proxmox
+      node_data: qemu
+      title: Proxmox VMs
+      title_as_link: false
+      footer: Proxmox
+      footer_as_link: true
+      hide_templates: 1
+```
+#### Info
+
+- **CORS**: 🟠 Proxied
+- **Auth**: 🟢 Required
+- **Price**: 🟢 Free
+- **Host**: Self-Hosted (see [Proxmox Virtual Environment](https://proxmox.com/en/proxmox-ve))
+- **Privacy**: _See [Proxmox's Privacy Policy](https://proxmox.com/en/privacy-policy)_
+
 ---
 
 ### Sabnzbd
@@ -1907,10 +2148,80 @@ Display info from the Gluetun VPN container public IP API. This can show the IP 
 
 ---
 
+### Drone CI Builds
+
+Display the last builds from a [Drone CI](https://www.drone.ci) instance. A self-hosted CI system that uses docker.
+
+<p align="center"><img width="380" src="https://i.ibb.co/nQM3BXj/Bildschirm-foto-2023-01-07-um-01-31-45.png" /></p>
+
+#### Options
+
+**Field** | **Type** | **Required** | **Description**
+--- | --- | --- | ---
+**`host`** | `string` |  Required | The hostname of the Drone CI instance.
+**`apiKey`** | `string` |  Required | The API key (https://<your-drone-instance>/account).
+**`limit`** | `integer` | _Optional_ | Limit the amounts of listed builds.
+**`repo`** | `string` | _Optional_ | Show only builds of the specified repo
+
+#### Example
+
+```yaml
+- type: drone-io
+  updateInterval: 30
+  options:
+    host: https://drone.somedomain.com
+    apiKey: my-very-secret-api-key
+    limit: 10
+```
+
+#### Info
+
+- **CORS**: 🟢 Enabled
+- **Auth**: 🟢 Required
+- **Price**: 🟢 Free
+- **Host**: Self-Hosted (see [Drone](https://www.drone.io))
+- **Privacy**: _See [Drone](https://www.drone.io)_
+
+---
+
+### Linkding
+
+Linkding is a self-hosted bookmarking service, which has a clean interface and is simple to set up. This lists the links, filterable by tags.
+
+#### Options
+
+**Field** | **Type** | **Required** | **Description**
+--- | --- | --- | ---
+**`host`** | `string` |  Required | The hostname of the Drone CI instance.
+**`apiKey`** | `string` |  Required | The API key (https://<your-linkding-instance>/settings/integrations).
+**`tags`** | `list of string` | _Optional_ | Filter the links by tag.
+
+#### Example
+
+```yaml
+- type: linkding
+  updateInterval: 30
+  options:
+    host: https://lingding.somedomain.com
+    apiKey: my-very-secret-api-key
+    tags: 
+      - rpg
+      - markdown
+```
+
+#### Info
+
+- **CORS**: 🟢 Enabled
+- **Auth**: 🟢 Required
+- **Price**: 🟢 Free
+- **Host**: Self-Hosted (see [Linkding](https://github.com/sissbruecker/linkding))
+- **Privacy**: _See [Linkding](https://github.com/sissbruecker/linkding)_
+
+---
+
 ## System Resource Monitoring
 
 ### Glances
-
 The easiest method for displaying system info and resource usage in Dashy is with [Glances](https://nicolargo.github.io/glances/).
 
 Glances is a cross-platform monitoring tool developed by [@nicolargo](https://github.com/nicolargo). It's similar to top/htop but with a [Rest API](https://glances.readthedocs.io/en/latest/api.html) and many [data exporters](https://glances.readthedocs.io/en/latest/gw/index.html) available. Under the hood, it uses [psutil](https://github.com/giampaolo/psutil) for retrieving system info.
@@ -2179,12 +2490,19 @@ You'll need to enable the sensors plugin to use this widget, using: `--enable-pl
 
 <p align="center"><img width="400" src="https://i.ibb.co/xSs4Gqd/gl-cpu-temp.png" /></p>
 
+#### Options
+
+**Field** | **Type** | **Required** | **Description**
+--- | --- | --- | ---
+**`units`** | `string` |  _Optional_ | Use `C` to display temperatures in Celsius or `F` to use Fahrenheit. Defaults to `C`.
+
 #### Example
 
 ```yaml
 - type: gl-cpu-temp
   options:
     hostname: http://192.168.130.2:61208
+    units: C
 ```
 
 ---
